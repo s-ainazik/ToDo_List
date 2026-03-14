@@ -1,34 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:to_do_list/add/add_page.dart';
-import 'package:to_do_list/add/task_model.dart';
+import 'package:to_do_list/add/todo.dart';
+import 'package:to_do_list/settings_page.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
   final String title;
+  final Function(bool) onThemeToggle;
+  final bool isDarkMode;
+
+  const MyHomePage({
+    super.key,
+    required this.title,
+    required this.onThemeToggle,
+    required this.isDarkMode,
+  });
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  // Список задач
-  final List<Task> _tasks = [];
+  final List<Todo> _tasks = [];
 
-  // Добавление новой задачи
-  void _addTask(Task task) {
+  void _addTask(Todo task) {
     setState(() {
+      task.id = _tasks.length + 1;
       _tasks.add(task);
     });
   }
 
-  // Переключение статуса выполнения
   void _toggleTaskStatus(int index) {
     setState(() {
-      _tasks[index].isCompleted = !_tasks[index].isCompleted;
+      _tasks[index].isDone = !_tasks[index].isDone;
     });
   }
 
-  // Форматирование даты (ДД.ММ.ГГ)
   String _formatDate(DateTime date) {
     return "${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year.toString().substring(2)}";
   }
@@ -43,12 +49,27 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         centerTitle: true,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => SettingsPage(
+                    isDarkTheme: widget.isDarkMode,
+                    onThemeToggle: widget.onThemeToggle,
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Список задач или заглушка
             Expanded(
               child: _tasks.isEmpty
                   ? _buildEmptyState()
@@ -57,51 +78,41 @@ class _MyHomePageState extends State<MyHomePage> {
                       itemBuilder: (context, index) {
                         final task = _tasks[index];
                         return Container(
-                          margin: const EdgeInsets.only(bottom: 2),
-                          padding: const EdgeInsets.all(2), // отступы внутри
+                          margin: const EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
-                            color: Colors.blue, // синий фон
-                            borderRadius: BorderRadius.circular(
-                              8,
-                            ), // скругление
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(4),
                           ),
-
                           child: ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             leading: Checkbox(
-                              value: task.isCompleted,
+                              value: task.isDone,
                               onChanged: (_) => _toggleTaskStatus(index),
-                              activeColor: Colors.white, // белый чекбокс
-                              checkColor: Colors.blue, // синяя галочка
+                              fillColor: MaterialStateProperty.all(Colors.grey.shade300), 
+                              checkColor: Colors.black,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4),
+                                borderRadius: BorderRadius.circular(2),
                               ),
                             ),
                             title: Text(
                               task.title,
                               style: TextStyle(
-                                decoration: task.isCompleted
+                                decoration: task.isDone
                                     ? TextDecoration.lineThrough
                                     : null,
-                                color: Colors.white, // белый текст
+                                color: Colors.white,
+                                fontSize: 16,
                               ),
                             ),
-                            subtitle: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Icon(
-                                  Icons.access_time,
-                                  size: 14,
-                                  color: Colors.white70,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  _formatDate(task.date),
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.white70,
-                                  ),
-                                ),
-                              ],
+                            trailing: Text(
+                              _formatDate(task.date),
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
                         );
@@ -109,7 +120,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
             ),
             const SizedBox(height: 16),
-            // Кнопка добавления задачи
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -122,7 +132,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: const EdgeInsets.symmetric(vertical: 15, ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -136,13 +146,11 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  // Заглушка для пустого списка
   Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-
           Text(
             'Нет задач',
             style: TextStyle(fontSize: 18, color: Colors.grey[600]),
@@ -158,14 +166,13 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  // Навигация на экран добавления с ожиданием результата
   void _navigateToAddPage() async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const AddPage()),
     );
 
-    if (result != null && result is Task) {
+    if (result != null && result is Todo) {
       _addTask(result);
     }
   }

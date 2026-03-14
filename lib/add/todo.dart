@@ -1,12 +1,14 @@
 // task_model.dart
-class Task {
+class Todo {
+  int id =0;
   final String title;
   final DateTime date;
-  bool isCompleted;
+  bool isDone;
 
-  Task({
+  Todo({
+    required this.id,
     required this.title,
     required this.date,
-    this.isCompleted = false,
+    this.isDone = false,
   });
 }

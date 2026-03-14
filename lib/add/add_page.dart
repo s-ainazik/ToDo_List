@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:to_do_list/add/task_model.dart';
+import 'package:to_do_list/add/todo.dart';
 class AddPage extends StatefulWidget {
   const AddPage({super.key});
 
@@ -105,7 +105,8 @@ class _AddPage extends State<AddPage> {
   void _saveTask() {
     if (_controller.text.isNotEmpty) {
       // Создаем новую задачу
-      final newTask = Task(
+      final newTask = Todo(
+        id: 0,
         title: _controller.text,
         date: DateTime.now(),
       );
