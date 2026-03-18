@@ -19,7 +19,6 @@ class SettingsPage extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.normal),
         ),
         centerTitle: true,
-        
       ),
       body: Padding(
         padding: const EdgeInsets.all(15.0),
@@ -49,7 +48,18 @@ class SettingsPage extends StatelessWidget {
                         Switch(
                           value: isDarkTheme,
                           onChanged: onThemeToggle,
-                          activeColor: Colors.blue,
+                          thumbColor: WidgetStateProperty.resolveWith<Color>((states) {
+                            if (states.contains(WidgetState.selected)) {
+                              return Colors.blue;
+                            }
+                            return Colors.grey;
+                          }),
+                          trackColor: WidgetStateProperty.resolveWith<Color>((states) {
+                            if (states.contains(WidgetState.selected)) {
+                              return Colors.blue.withValues(alpha: 0.5); // ✅ новая версия
+                            }
+                            return Colors.grey.withValues(alpha: 0.5);   // ✅ новая версия
+                          }),
                         ),
                       ],
                     ),

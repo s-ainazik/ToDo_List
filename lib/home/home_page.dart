@@ -3,6 +3,7 @@ import 'package:to_do_list/add/add_page.dart';
 import 'package:to_do_list/add/todo.dart';
 import 'package:to_do_list/settings_page.dart';
 
+
 class MyHomePage extends StatefulWidget {
   final String title;
   final Function(bool) onThemeToggle;
@@ -91,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             leading: Checkbox(
                               value: task.isDone,
                               onChanged: (_) => _toggleTaskStatus(index),
-                              fillColor: MaterialStateProperty.all(Colors.grey.shade300), 
+                              fillColor: WidgetStateProperty.all(Colors.grey.shade300),
                               checkColor: Colors.black,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(2),

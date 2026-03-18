@@ -1,124 +1,82 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:to_do_list/add/todo.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:to_do_list/data/app_db.dart';
+import 'package:to_do_list/add/add_cubit.dart';
+import 'package:to_do_list/data/repository.dart';
+import 'package:to_do_list/add/add_state.dart';
+import 'package:to_do_list/add/add_vm.dart';
+
 class AddPage extends StatefulWidget {
   const AddPage({super.key});
 
   @override
-  State<StatefulWidget> createState() => _AddPage();
+  State<AddPage> createState() => _AddPageState();
 }
 
-class _AddPage extends State<AddPage> {
-  late Timer _timer;
-  late TextEditingController _controller;
+class _AddPageState extends State<AddPage> {
+  final TextEditingController _controller = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      final date = DateTime.now();
-      print("${date.minute}: ${date.second}");
-    });
-    _controller = TextEditingController();
-  }
-
-    @override
   Widget build(BuildContext context) {
-  
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Новая задача",
-          style: TextStyle(fontWeight: FontWeight.normal),
-        ),
-        centerTitle: true,
-        elevation: 0,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: _controller,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.grey[300],
-                hintText: 'Введите название задачи',
-                hintStyle: TextStyle(
-                  color: Colors.grey[800], // цвет подсказки
-                  fontSize: 14,
-                  fontWeight: FontWeight.w100
-                ),
-                
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide(color: Colors.grey.shade900),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide(color: Colors.black, width: 2),
-                ),
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-              ),
-            ),
-
-            Spacer(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _saveTask,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      'Сохранить',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+    return BlocProvider(
+      create: (_) => AddCubit(AddVm(Repository(AppDb()))),
+      child: Scaffold(
+        appBar: AppBar(title: const Text("Новая задача"), centerTitle: true),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: _controller,
+                decoration: InputDecoration(
+                  hintText: 'Введите задачу',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-              ],
-            ),
-          ],
+              ),
+              const SizedBox(height: 8),
+              BlocBuilder<AddCubit, AddState>(
+                builder: (context, state) {
+                  if (state.isEmpty) {
+                    return const Text(
+                      "Введите задачу!",
+                      style: TextStyle(color: Colors.red),
+                    );
+                  }
+                  if (state.isSuccess) {
+                    return const Text(
+                      "Успешно сохранено",
+                      style: TextStyle(color: Colors.green),
+                    );
+                  }
+                  return const SizedBox();
+                },
+              ),
+              const Spacer(),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    final cubit = context.read<AddCubit>();
+                    final task = await cubit.addTask(_controller.text);
+
+                    if (task != null) {
+                      await Future.delayed(const Duration(seconds: 1));
+                      if (mounted) {
+                        // ignore: use_build_context_synchronously
+                        Navigator.pop(context, task);
+                      }
+                    }
+                  },
+                  child: const Text("Сохранить"),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
-  }
-
-  void _saveTask() {
-    if (_controller.text.isNotEmpty) {
-      // Создаем новую задачу
-      final newTask = Todo(
-        id: 0,
-        title: _controller.text,
-        date: DateTime.now(),
-      );
-      // Возвращаем задачу на предыдущий экран
-      Navigator.pop(context, newTask);
-    }
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    _controller.dispose();
-    super.dispose();
   }
 }

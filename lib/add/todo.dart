@@ -1,4 +1,3 @@
-// task_model.dart
 class Todo {
   int id =0;
   final String title;
