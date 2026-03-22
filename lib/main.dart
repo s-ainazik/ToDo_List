@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_list/home/home_page.dart';
+import 'package:to_do_list/onboarding_page.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final prefs = await SharedPreferences.getInstance();
+  final isOnboardingShown = prefs.getBool('isOnboardingShown') ?? false;
+  runApp(MyApp(isOnboardingShown: isOnboardingShown));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  final bool isOnboardingShown;
+  const MyApp({super.key, required this.isOnboardingShown});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -35,11 +41,13 @@ class _MyAppState extends State<MyApp> {
         cardColor: const Color(0xFF2A2A3D),
       ),
       themeMode: _themeMode,
-      home: MyHomePage(
-        title: 'ToDo',
-        onThemeToggle: _toggleTheme,
-        isDarkMode: _themeMode == ThemeMode.dark,
-      ),
+      home: widget.isOnboardingShown
+          ? MyHomePage(
+              title: 'ToDo',
+              onThemeToggle: _toggleTheme,
+              isDarkMode: _themeMode == ThemeMode.dark,
+            )
+          : const OnboardingPage(),
     );
   }
 }
