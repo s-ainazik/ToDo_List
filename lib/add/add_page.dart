@@ -1,80 +1,100 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:to_do_list/data/app_db.dart';
 import 'package:to_do_list/add/add_cubit.dart';
-import 'package:to_do_list/data/repository.dart';
 import 'package:to_do_list/add/add_state.dart';
 import 'package:to_do_list/add/add_vm.dart';
+import 'package:to_do_list/data/app_db.dart';
+import 'package:to_do_list/data/repository.dart';
 
-class AddPage extends StatefulWidget {
+class AddPage extends StatelessWidget {
   const AddPage({super.key});
 
   @override
-  State<AddPage> createState() => _AddPageState();
+  Widget build(BuildContext context) {
+    // Создаём зависимости прямо в build, но оборачиваем в BlocProvider,
+    // который сам позаботится о времени жизни кубита.
+    return BlocProvider(
+      create: (context) {
+        final appDb = AppDb();
+        final repository = Repository(appDb);
+        final viewModel = AddVm(repository);
+        return AddCubit(viewModel);
+      },
+      child: const _AddPageContent(),
+    );
+  }
 }
 
-class _AddPageState extends State<AddPage> {
+class _AddPageContent extends StatefulWidget {
+  const _AddPageContent();
+
+  @override
+  State<_AddPageContent> createState() => _AddPageContentState();
+}
+
+class _AddPageContentState extends State<_AddPageContent> {
   final TextEditingController _controller = TextEditingController();
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => AddCubit(AddVm(Repository(AppDb()))),
-      child: Scaffold(
-        appBar: AppBar(title: const Text("Новая задача"), centerTitle: true),
-        body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextField(
-                controller: _controller,
-                decoration: InputDecoration(
-                  hintText: 'Введите задачу',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              BlocBuilder<AddCubit, AddState>(
-                builder: (context, state) {
-                  if (state.isEmpty) {
-                    return const Text(
-                      "Введите задачу!",
-                      style: TextStyle(color: Colors.red),
-                    );
-                  }
-                  if (state.isSuccess) {
-                    return const Text(
-                      "Успешно сохранено",
-                      style: TextStyle(color: Colors.green),
-                    );
-                  }
-                  return const SizedBox();
-                },
-              ),
-              const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    final cubit = context.read<AddCubit>();
-                    final task = await cubit.addTask(_controller.text);
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
-                    if (task != null) {
-                      await Future.delayed(const Duration(seconds: 1));
-                      if (mounted) {
-                        // ignore: use_build_context_synchronously
-                        Navigator.pop(context, task);
-                      }
-                    }
-                  },
-                  child: const Text("Сохранить"),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Новая задача"), centerTitle: true),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: _controller,
+              decoration: InputDecoration(
+                hintText: 'Введите задачу',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 8),
+            BlocBuilder<AddCubit, AddState>(
+              builder: (context, state) {
+                if (state.isEmpty) {
+                  return const Text(
+                    "Введите задачу!",
+                    style: TextStyle(color: Colors.red),
+                  );
+                }
+                if (state.isSuccess) {
+                  return const Text(
+                    "Успешно сохранено",
+                    style: TextStyle(color: Colors.green),
+                  );
+                }
+                return const SizedBox();
+              },
+            ),
+            const Spacer(),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  final cubit = context.read<AddCubit>();
+                  final task = await cubit.addTask(_controller.text);
+                  if (task != null) {
+                    await Future.delayed(const Duration(seconds: 1));
+                    if (mounted) {
+                      Navigator.pop(context, task);
+                    }
+                  }
+                },
+                child: const Text("Сохранить"),
+              ),
+            ),
+          ],
         ),
       ),
     );

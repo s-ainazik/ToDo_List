@@ -56,9 +56,9 @@ class SettingsPage extends StatelessWidget {
                           }),
                           trackColor: WidgetStateProperty.resolveWith<Color>((states) {
                             if (states.contains(WidgetState.selected)) {
-                              return Colors.blue.withValues(alpha: 0.5); // ✅ новая версия
+                              return Colors.blue.withValues(alpha: 0.5);
                             }
-                            return Colors.grey.withValues(alpha: 0.5);   // ✅ новая версия
+                            return Colors.grey.withValues(alpha: 0.5);
                           }),
                         ),
                       ],

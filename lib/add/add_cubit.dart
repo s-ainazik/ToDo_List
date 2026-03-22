@@ -1,6 +1,6 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:to_do_list/add/add_state.dart';
 import 'package:to_do_list/add/add_vm.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:to_do_list/add/todo.dart';
 
 class AddCubit extends Cubit<AddState> {
@@ -14,8 +14,13 @@ class AddCubit extends Cubit<AddState> {
       return null;
     }
 
-    final task = await viewModel.addTask(title);
-    emit(AddState(isEmpty: false, isSuccess: true));
-    return task;
+    try {
+      final task = await viewModel.addTask(title);
+      emit(AddState(isEmpty: false, isSuccess: true));
+      return task;
+    } catch (e) {
+      emit(AddState(isEmpty: false, isSuccess: false));
+      return null;
+    }
   }
 }

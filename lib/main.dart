@@ -34,7 +34,6 @@ class _MyAppState extends State<MyApp> {
         scaffoldBackgroundColor: const Color(0xFF1E1E2F),
         cardColor: const Color(0xFF2A2A3D),
       ),
-
       themeMode: _themeMode,
       home: MyHomePage(
         title: 'ToDo',

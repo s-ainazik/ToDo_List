@@ -12,9 +12,7 @@ class AddVm {
       title: title,
       date: DateTime.now(),
     );
-
     await repo.addTask(task);
-
     return task;
   }
 }

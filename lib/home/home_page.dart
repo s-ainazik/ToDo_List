@@ -3,7 +3,6 @@ import 'package:to_do_list/add/add_page.dart';
 import 'package:to_do_list/add/todo.dart';
 import 'package:to_do_list/settings_page.dart';
 
-
 class MyHomePage extends StatefulWidget {
   final String title;
   final Function(bool) onThemeToggle;
@@ -133,7 +132,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 15, ),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),

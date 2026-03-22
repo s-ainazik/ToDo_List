@@ -1,5 +1,5 @@
 class Todo {
-  int id =0;
+  int id;
   final String title;
   final DateTime date;
   bool isDone;
