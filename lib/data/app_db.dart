@@ -10,4 +10,11 @@ class AppDb {
   List<Todo> getTasks() {
     return _tasks;
   }
+
+  Future<void> updateTask(Todo updatedTask) async {
+    final index = _tasks.indexWhere((task) => task.id == updatedTask.id);
+    if (index != -1) {
+      _tasks[index] = updatedTask;
+    }
+  }
 }

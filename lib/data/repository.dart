@@ -9,4 +9,8 @@ class Repository {
   Future<void> addTask(Todo task) async {
     await database.insertTask(task);
   }
+
+  Future<void> updateTask(Todo task) async {
+    await database.updateTask(task);
+  }
 }

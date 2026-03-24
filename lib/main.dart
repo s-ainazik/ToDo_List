@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:to_do_list/home/home_page.dart';
-import 'package:to_do_list/onboarding_page.dart';
+import 'package:to_do_list/pages/home_page.dart';
+import 'package:to_do_list/pages/onboarding_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,9 +45,8 @@ class _MyAppState extends State<MyApp> {
           ? MyHomePage(
               title: 'ToDo',
               onThemeToggle: _toggleTheme,
-              isDarkMode: _themeMode == ThemeMode.dark,
             )
-          : const OnboardingPage(),
+          : OnboardingPage(onThemeToggle: _toggleTheme),
     );
   }
 }

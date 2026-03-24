@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:to_do_list/home/home_page.dart';
+import 'package:to_do_list/pages/home_page.dart';
 
 class OnboardingPage extends StatefulWidget {
-  const OnboardingPage({super.key});
+  final Function(bool) onThemeToggle;
+
+  const OnboardingPage({super.key, required this.onThemeToggle});
 
   @override
   State<OnboardingPage> createState() => _OnboardingPageState();
@@ -48,15 +50,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
     }
   }
 
-  void _goToPrevious() {
-    if (_currentPage > 0) {
-      _pageController.previousPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
-
   void _skipOnboarding() {
     _finishOnboarding();
   }
@@ -67,14 +60,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
       MaterialPageRoute(
         builder: (_) => MyHomePage(
           title: 'ToDo',
-          onThemeToggle: _dummyThemeToggle,
-          isDarkMode: false,
+          onThemeToggle: widget.onThemeToggle,
         ),
       ),
     );
   }
 
-  void _dummyThemeToggle(bool isDark) {} 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -143,12 +134,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Кнопка "Пропустить" (всегда видна)
           TextButton(
             onPressed: _skipOnboarding,
             child: const Text('Пропустить'),
           ),
-          // Индикаторы страниц
           Row(
             children: List.generate(
               _pages.length,
@@ -165,7 +154,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
               ),
             ),
           ),
-          // Кнопка "Далее" или "Начать"
           TextButton(
             onPressed: _currentPage == _pages.length - 1
                 ? _finishOnboarding

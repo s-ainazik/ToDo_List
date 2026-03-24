@@ -11,8 +11,6 @@ class AddPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Создаём зависимости прямо в build, но оборачиваем в BlocProvider,
-    // который сам позаботится о времени жизни кубита.
     return BlocProvider(
       create: (context) {
         final appDb = AppDb();
@@ -34,11 +32,28 @@ class _AddPageContent extends StatefulWidget {
 
 class _AddPageContentState extends State<_AddPageContent> {
   final TextEditingController _controller = TextEditingController();
+  bool _isTitleEmpty = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_onTitleChanged);
+  }
 
   @override
   void dispose() {
+    _controller.removeListener(_onTitleChanged);
     _controller.dispose();
     super.dispose();
+  }
+
+  void _onTitleChanged() {
+    final isEmpty = _controller.text.trim().isEmpty;
+    if (isEmpty != _isTitleEmpty) {
+      setState(() {
+        _isTitleEmpty = isEmpty;
+      });
+    }
   }
 
   @override
@@ -70,7 +85,7 @@ class _AddPageContentState extends State<_AddPageContent> {
                 }
                 if (state.isSuccess) {
                   return const Text(
-                    "Успешно сохранено",
+                    "Успешно сохранено!",
                     style: TextStyle(color: Colors.green),
                   );
                 }
@@ -81,16 +96,26 @@ class _AddPageContentState extends State<_AddPageContent> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () async {
-                  final cubit = context.read<AddCubit>();
-                  final task = await cubit.addTask(_controller.text);
-                  if (task != null) {
-                    await Future.delayed(const Duration(seconds: 1));
-                    if (mounted) {
-                      Navigator.pop(context, task);
-                    }
-                  }
-                },
+                onPressed: _isTitleEmpty
+                    ? null
+                    : () async {
+                        final cubit = context.read<AddCubit>();
+                        final task = await cubit.addTask(_controller.text);
+                        if (task != null) {
+                          await Future.delayed(const Duration(seconds: 1));
+                          if (mounted) {
+                            Navigator.pop(context, task);
+                          }
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _isTitleEmpty ? Colors.grey : Colors.blue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
                 child: const Text("Сохранить"),
               ),
             ),

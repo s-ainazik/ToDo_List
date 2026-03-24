@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 
 class SettingsPage extends StatelessWidget {
-  final bool isDarkTheme;
   final Function(bool) onThemeToggle;
 
   const SettingsPage({
     super.key,
-    required this.isDarkTheme,
     required this.onThemeToggle,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isDarkTheme = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -21,17 +20,17 @@ class SettingsPage extends StatelessWidget {
         centerTitle: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(15.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Card(
-              elevation: 2,
+              elevation: 1,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -48,27 +47,19 @@ class SettingsPage extends StatelessWidget {
                         Switch(
                           value: isDarkTheme,
                           onChanged: onThemeToggle,
-                          thumbColor: WidgetStateProperty.resolveWith<Color>((states) {
-                            if (states.contains(WidgetState.selected)) {
-                              return Colors.blue;
-                            }
-                            return Colors.grey;
-                          }),
-                          trackColor: WidgetStateProperty.resolveWith<Color>((states) {
-                            if (states.contains(WidgetState.selected)) {
-                              return Colors.blue.withValues(alpha: 0.5);
-                            }
-                            return Colors.grey.withValues(alpha: 0.5);
-                          }),
+                          activeColor: Colors.blue,
                         ),
                       ],
                     ),
-                    const SizedBox(height: 1),
+                    const SizedBox(height: 4),
                     Text(
                       isDarkTheme
-                          ? 'Использовать светлое\nоформление приложения'
-                          : 'Использовать тёмное\nоформление приложения',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                          ? 'Использовать светлое оформление приложения'
+                          : 'Использовать тёмное оформление приложения',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
                     ),
                   ],
                 ),

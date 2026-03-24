@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:to_do_list/add/add_page.dart';
 import 'package:to_do_list/add/todo.dart';
-import 'package:to_do_list/settings_page.dart';
+import 'package:to_do_list/pages/settings_page.dart';
+import 'package:to_do_list/pages/task_detail_page.dart';
 
 class MyHomePage extends StatefulWidget {
   final String title;
   final Function(bool) onThemeToggle;
-  final bool isDarkMode;
 
   const MyHomePage({
     super.key,
     required this.title,
     required this.onThemeToggle,
-    required this.isDarkMode,
   });
 
   @override
@@ -29,6 +28,21 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void _updateTask(Todo updatedTask) {
+    setState(() {
+      final index = _tasks.indexWhere((task) => task.id == updatedTask.id);
+      if (index != -1) {
+        _tasks[index] = updatedTask;
+      }
+    });
+  }
+
+  void _deleteTask(Todo task) {
+    setState(() {
+      _tasks.removeWhere((t) => t.id == task.id);
+    });
+  }
+
   void _toggleTaskStatus(int index) {
     setState(() {
       _tasks[index].isDone = !_tasks[index].isDone;
@@ -39,13 +53,39 @@ class _MyHomePageState extends State<MyHomePage> {
     return "${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year.toString().substring(2)}";
   }
 
+  void _navigateToAddPage() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const AddPage()),
+    );
+
+    if (result != null && result is Todo) {
+      _addTask(result);
+    }
+  }
+
+  void _navigateToTaskDetail(Todo task) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TaskDetailPage(task: task),
+      ),
+    );
+
+    if (result == null) {
+      _deleteTask(task);
+    } else if (result is Todo) {
+      _updateTask(result);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Мои задачи",
-          style: TextStyle(fontWeight: FontWeight.normal),
+        title: Text(
+          widget.title,
+          style: const TextStyle(fontWeight: FontWeight.normal),
         ),
         centerTitle: true,
         elevation: 0,
@@ -57,7 +97,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 context,
                 MaterialPageRoute(
                   builder: (_) => SettingsPage(
-                    isDarkTheme: widget.isDarkMode,
                     onThemeToggle: widget.onThemeToggle,
                   ),
                 ),
@@ -77,41 +116,44 @@ class _MyHomePageState extends State<MyHomePage> {
                       itemCount: _tasks.length,
                       itemBuilder: (context, index) {
                         final task = _tasks[index];
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.blue,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
+                        return GestureDetector(
+                          onTap: () => _navigateToTaskDetail(task),
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius: BorderRadius.circular(4),
                             ),
-                            leading: Checkbox(
-                              value: task.isDone,
-                              onChanged: (_) => _toggleTaskStatus(index),
-                              fillColor: WidgetStateProperty.all(Colors.grey.shade300),
-                              checkColor: Colors.black,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(2),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
                               ),
-                            ),
-                            title: Text(
-                              task.title,
-                              style: TextStyle(
-                                decoration: task.isDone
-                                    ? TextDecoration.lineThrough
-                                    : null,
-                                color: Colors.white,
-                                fontSize: 16,
+                              leading: Checkbox(
+                                value: task.isDone,
+                                onChanged: (_) => _toggleTaskStatus(index),
+                                fillColor: WidgetStateProperty.all(Colors.grey.shade300),
+                                checkColor: Colors.black,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
                               ),
-                            ),
-                            trailing: Text(
-                              _formatDate(task.date),
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
+                              title: Text(
+                                task.title,
+                                style: TextStyle(
+                                  decoration: task.isDone
+                                      ? TextDecoration.lineThrough
+                                      : null,
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              trailing: Text(
+                                _formatDate(task.date),
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
                               ),
                             ),
                           ),
@@ -164,16 +206,5 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
     );
-  }
-
-  void _navigateToAddPage() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const AddPage()),
-    );
-
-    if (result != null && result is Todo) {
-      _addTask(result);
-    }
   }
 }
