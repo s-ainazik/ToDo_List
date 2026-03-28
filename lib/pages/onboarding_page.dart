@@ -39,21 +39,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
     await prefs.setBool('isOnboardingShown', true);
   }
 
-  void _goToNext() {
-    if (_currentPage < _pages.length - 1) {
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    } else {
-      _finishOnboarding();
-    }
-  }
-
-  void _skipOnboarding() {
-    _finishOnboarding();
-  }
-
   void _finishOnboarding() {
     Navigator.pushReplacement(
       context,
@@ -76,15 +61,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
               child: PageView.builder(
                 controller: _pageController,
                 itemCount: _pages.length,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
-                },
-                itemBuilder: (context, index) {
-                  final page = _pages[index];
-                  return _buildPageContent(page);
-                },
+                onPageChanged: (index) => setState(() => _currentPage = index),
+                itemBuilder: (context, index) => _buildPageContent(_pages[index]),
               ),
             ),
             _buildBottomNavigation(),
@@ -100,29 +78,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            data.image,
-            size: 100,
-            color: Colors.blue,
-          ),
+          Icon(data.image, size: 100, color: Colors.blue),
           const SizedBox(height: 32),
-          Text(
-            data.title,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
+          Text(data.title, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
           const SizedBox(height: 16),
-          Text(
-            data.description,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
-            ),
-            textAlign: TextAlign.center,
-          ),
+          Text(data.description, style: const TextStyle(fontSize: 16, color: Colors.grey), textAlign: TextAlign.center),
         ],
       ),
     );
@@ -134,33 +94,25 @@ class _OnboardingPageState extends State<OnboardingPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          TextButton(
-            onPressed: _skipOnboarding,
-            child: const Text('Пропустить'),
-          ),
+          TextButton(onPressed: _finishOnboarding, child: const Text('Пропустить')),
           Row(
-            children: List.generate(
-              _pages.length,
-              (index) => Container(
+            children: List.generate(_pages.length, (index) {
+              return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 4),
                 width: 8,
                 height: 8,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: _currentPage == index
-                      ? Colors.blue
-                      : Colors.grey.shade300,
+                  color: _currentPage == index ? Colors.blue : Colors.grey.shade300,
                 ),
-              ),
-            ),
+              );
+            }),
           ),
           TextButton(
-            onPressed: _currentPage == _pages.length - 1
-                ? _finishOnboarding
-                : _goToNext,
-            child: Text(
-              _currentPage == _pages.length - 1 ? 'Начать' : 'Далее',
-            ),
+            onPressed: _currentPage == _pages.length - 1 ? _finishOnboarding : () {
+              _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+            },
+            child: Text(_currentPage == _pages.length - 1 ? 'Начать' : 'Далее'),
           ),
         ],
       ),
@@ -172,10 +124,5 @@ class OnboardingData {
   final String title;
   final String description;
   final IconData image;
-
-  OnboardingData({
-    required this.title,
-    required this.description,
-    required this.image,
-  });
+  OnboardingData({required this.title, required this.description, required this.image});
 }

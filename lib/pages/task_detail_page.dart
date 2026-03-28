@@ -1,27 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:to_do_list/add/todo.dart';
+import 'package:to_do_list/data/app_database.dart';
 
 class TaskDetailPage extends StatefulWidget {
   final Todo task;
-
-  const TaskDetailPage({
-    super.key,
-    required this.task,
-  });
+  const TaskDetailPage({super.key, required this.task});
 
   @override
   State<TaskDetailPage> createState() => _TaskDetailPageState();
 }
 
 class _TaskDetailPageState extends State<TaskDetailPage> {
-  late TextEditingController _descriptionController;
+  late final TextEditingController _descriptionController;
   bool _isDescriptionEmpty = true;
 
   @override
   void initState() {
     super.initState();
-    _descriptionController = TextEditingController(text: widget.task.description);
-    _isDescriptionEmpty = widget.task.description.trim().isEmpty;
+    _descriptionController = TextEditingController(text: widget.task.description ?? '');
+    _isDescriptionEmpty = (widget.task.description ?? '').trim().isEmpty;
     _descriptionController.addListener(_onDescriptionChanged);
   }
 
@@ -35,15 +31,12 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
   void _onDescriptionChanged() {
     final isEmpty = _descriptionController.text.trim().isEmpty;
     if (isEmpty != _isDescriptionEmpty) {
-      setState(() {
-        _isDescriptionEmpty = isEmpty;
-      });
+      setState(() => _isDescriptionEmpty = isEmpty);
     }
   }
 
-  Future<void> _saveChanges() async {
+  void _saveChanges() {
     if (_isDescriptionEmpty) return;
-
     final updatedTask = Todo(
       id: widget.task.id,
       title: widget.task.title,
@@ -51,18 +44,11 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
       date: widget.task.date,
       isDone: widget.task.isDone,
     );
-
-    if (mounted) {
-      Navigator.pop(context, updatedTask);
-    }
+    Navigator.pop(context, updatedTask);
   }
 
-  Future<void> _deleteTask() async {
-    // Возвращаем специальное значение, указывающее на удаление
-    // (например, объект с id для удаления или null)
-    if (mounted) {
-      Navigator.pop(context, null);
-    }
+  void _deleteTask() {
+    Navigator.pop(context, null);
   }
 
   @override
@@ -70,10 +56,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          widget.task.title,
-          style: const TextStyle(fontWeight: FontWeight.normal),
-        ),
+        title: Text(widget.task.title, style: const TextStyle(fontWeight: FontWeight.normal)),
         centerTitle: true,
         backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
@@ -86,22 +69,17 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Описание',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-            ),
+            const Text('Описание', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
             const SizedBox(height: 8),
             TextField(
               controller: _descriptionController,
               decoration: InputDecoration(
                 hintText: 'Введите описание задачи',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
             ),
             const Spacer(),
@@ -113,9 +91,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                   backgroundColor: _isDescriptionEmpty ? Colors.grey : Colors.blue,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
                 child: const Text('Сохранить изменения', style: TextStyle(fontSize: 16)),
               ),

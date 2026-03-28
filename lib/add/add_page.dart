@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:to_do_list/add/add_cubit.dart';
-import 'package:to_do_list/add/add_state.dart';
-import 'package:to_do_list/add/add_vm.dart';
-import 'package:to_do_list/data/app_db.dart';
-import 'package:to_do_list/data/repository.dart';
+import 'package:to_do_list/add/add_bloc.dart';
+import 'package:to_do_list/data/app_repository.dart';
+import 'package:to_do_list/database/database_instance.dart';
 
 class AddPage extends StatelessWidget {
   const AddPage({super.key});
@@ -13,9 +11,8 @@ class AddPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        final appDb = AppDb();
-        final repository = Repository(appDb);
-        final viewModel = AddVm(repository);
+        final repo = AppRepositoryImpl(appDatabase);
+        final viewModel = AddViewModel(repo);
         return AddCubit(viewModel);
       },
       child: const _AddPageContent(),
@@ -31,12 +28,13 @@ class _AddPageContent extends StatefulWidget {
 }
 
 class _AddPageContentState extends State<_AddPageContent> {
-  final TextEditingController _controller = TextEditingController();
+  late final TextEditingController _controller;
   bool _isTitleEmpty = true;
 
   @override
   void initState() {
     super.initState();
+    _controller = TextEditingController();
     _controller.addListener(_onTitleChanged);
   }
 
@@ -50,9 +48,7 @@ class _AddPageContentState extends State<_AddPageContent> {
   void _onTitleChanged() {
     final isEmpty = _controller.text.trim().isEmpty;
     if (isEmpty != _isTitleEmpty) {
-      setState(() {
-        _isTitleEmpty = isEmpty;
-      });
+      setState(() => _isTitleEmpty = isEmpty);
     }
   }
 
@@ -69,25 +65,17 @@ class _AddPageContentState extends State<_AddPageContent> {
               controller: _controller,
               decoration: InputDecoration(
                 hintText: 'Введите задачу',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
             ),
             const SizedBox(height: 8),
             BlocBuilder<AddCubit, AddState>(
               builder: (context, state) {
                 if (state.isEmpty) {
-                  return const Text(
-                    "Введите задачу!",
-                    style: TextStyle(color: Colors.red),
-                  );
+                  return const Text("Введите задачу!", style: TextStyle(color: Colors.red));
                 }
                 if (state.isSuccess) {
-                  return const Text(
-                    "Успешно сохранено!",
-                    style: TextStyle(color: Colors.green),
-                  );
+                  return const Text("Успешно сохранено!", style: TextStyle(color: Colors.green));
                 }
                 return const SizedBox();
               },
@@ -100,21 +88,15 @@ class _AddPageContentState extends State<_AddPageContent> {
                     ? null
                     : () async {
                         final cubit = context.read<AddCubit>();
-                        final task = await cubit.addTask(_controller.text);
-                        if (task != null) {
-                          await Future.delayed(const Duration(seconds: 1));
-                          if (mounted) {
-                            Navigator.pop(context, task);
-                          }
-                        }
+                        await cubit.addTask(_controller.text);
+                        await Future.delayed(const Duration(seconds: 1));
+                        if (mounted) Navigator.pop(context);
                       },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _isTitleEmpty ? Colors.grey : Colors.blue,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
                 child: const Text("Сохранить"),
               ),
