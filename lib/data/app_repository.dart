@@ -2,6 +2,7 @@ import 'package:to_do_list/data/app_database.dart';
 
 abstract class AppRepository {
   Future<List<Todo>> getList();
+  Future<Todo?> getTaskById(int id);
   Future<void> addTask(TodosCompanion companion);
   Future<void> updateTask(int id, TodosCompanion companion);
   Future<void> deleteTask(int id);
@@ -13,6 +14,11 @@ class AppRepositoryImpl implements AppRepository {
 
   @override
   Future<List<Todo>> getList() => db.getTodoList();
+
+  @override
+  Future<Todo?> getTaskById(int id) async {
+    return await (db.select(db.todos)..where((t) => t.id.equals(id))).getSingleOrNull();
+  }
 
   @override
   Future<void> addTask(TodosCompanion companion) async {

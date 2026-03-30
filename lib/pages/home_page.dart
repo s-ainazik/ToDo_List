@@ -14,7 +14,11 @@ class MyHomePage extends StatefulWidget {
   final String title;
   final Function(bool) onThemeToggle;
 
-  const MyHomePage({super.key, required this.title, required this.onThemeToggle});
+  const MyHomePage({
+    super.key,
+    required this.title,
+    required this.onThemeToggle,
+  });
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -38,7 +42,10 @@ class _MyHomePageState extends State<MyHomePage> {
       value: cubit,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.title, style: const TextStyle(fontWeight: FontWeight.normal)),
+          title: Text(
+            widget.title,
+            style: const TextStyle(fontWeight: FontWeight.normal),
+          ),
           centerTitle: true,
           elevation: 0,
           actions: [
@@ -47,7 +54,10 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => SettingsPage(onThemeToggle: widget.onThemeToggle)),
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        SettingsPage(onThemeToggle: widget.onThemeToggle),
+                  ),
                 );
               },
             ),
@@ -57,7 +67,9 @@ class _MyHomePageState extends State<MyHomePage> {
           builder: (context, state) {
             // Обработка ошибок
             if (state.isError) {
-              return const Center(child: Text("Возникла ошибка при работе с данными!"));
+              return const Center(
+                child: Text("Возникла ошибка при работе с данными!"),
+              );
             }
 
             // Основной контент: список (если есть) или сообщение о пустоте + кнопка
@@ -73,7 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             itemBuilder: (context, index) {
                               final task = state.items[index];
                               return GestureDetector(
-                                onTap: () => _navigateToTaskDetail(task),
+                                onTap: () => _navigateToTaskDetail(task.id),
                                 child: Container(
                                   margin: const EdgeInsets.only(bottom: 16),
                                   decoration: BoxDecoration(
@@ -81,25 +93,37 @@ class _MyHomePageState extends State<MyHomePage> {
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: ListTile(
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
                                     leading: Checkbox(
                                       value: task.isDone,
                                       onChanged: (_) => _toggleTaskStatus(task),
-                                      fillColor: WidgetStateProperty.all(Colors.grey.shade300),
+                                      fillColor: WidgetStateProperty.all(
+                                        Colors.grey.shade300,
+                                      ),
                                       checkColor: Colors.black,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
                                     ),
                                     title: Text(
                                       task.title,
                                       style: TextStyle(
-                                        decoration: task.isDone ? TextDecoration.lineThrough : null,
+                                        decoration: task.isDone
+                                            ? TextDecoration.lineThrough
+                                            : null,
                                         color: Colors.white,
                                         fontSize: 16,
                                       ),
                                     ),
                                     trailing: Text(
                                       formatDate(DateTime.parse(task.date)),
-                                      style: const TextStyle(color: Colors.white70, fontSize: 12),
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 12,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -113,12 +137,17 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: ElevatedButton.icon(
                       onPressed: _navigateToAddPage,
                       icon: const Icon(Icons.add, size: 20),
-                      label: const Text('Добавить задачу', style: TextStyle(fontSize: 16)),
+                      label: const Text(
+                        'Добавить задачу',
+                        style: TextStyle(fontSize: 16),
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 15),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                         elevation: 0,
                       ),
                     ),
@@ -138,7 +167,10 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('Нет задач', style: TextStyle(fontSize: 18, color: Colors.grey[600])),
+          Text(
+            'Нет задач',
+            style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+          ),
           const SizedBox(height: 8),
           Text(
             'Нажмите «+ Добавить задачу»\nчтобы создать новую задачу',
@@ -168,13 +200,13 @@ class _MyHomePageState extends State<MyHomePage> {
     await cubit.fetchList();
   }
 
-  void _navigateToTaskDetail(Todo task) async {
+  void _navigateToTaskDetail(int taskId) async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => TaskDetailPage(task: task)),
+      MaterialPageRoute(builder: (_) => TaskDetailPage(taskId: taskId)),
     );
     if (result == null) {
-      await cubit.deleteTask(task.id);
+      await cubit.deleteTask(taskId);
     } else if (result is Todo) {
       final companion = TodosCompanion(
         title: drift.Value(result.title),
