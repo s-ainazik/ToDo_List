@@ -65,17 +65,25 @@ class _AddPageContentState extends State<_AddPageContent> {
               controller: _controller,
               decoration: InputDecoration(
                 hintText: 'Введите задачу',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
             const SizedBox(height: 8),
             BlocBuilder<AddCubit, AddState>(
               builder: (context, state) {
                 if (state.isEmpty) {
-                  return const Text("Введите задачу!", style: TextStyle(color: Colors.red));
+                  return const Text(
+                    "Введите задачу!",
+                    style: TextStyle(color: Colors.red),
+                  );
                 }
                 if (state.isSuccess) {
-                  return const Text("Успешно сохранено!", style: TextStyle(color: Colors.green));
+                  return const Text(
+                    "Успешно сохранено!",
+                    style: TextStyle(color: Colors.green),
+                  );
                 }
                 return const SizedBox();
               },
@@ -96,7 +104,9 @@ class _AddPageContentState extends State<_AddPageContent> {
                   backgroundColor: _isTitleEmpty ? Colors.grey : Colors.blue,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 child: const Text("Сохранить"),
               ),

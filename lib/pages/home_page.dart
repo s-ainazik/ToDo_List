@@ -6,6 +6,7 @@ import 'package:to_do_list/data/app_database.dart';
 import 'package:to_do_list/data/app_repository.dart';
 import 'package:to_do_list/database/database_instance.dart';
 import 'package:to_do_list/home/home_bloc.dart';
+import 'package:to_do_list/pages/profile_page.dart';
 import 'package:to_do_list/pages/settings_page.dart';
 import 'package:to_do_list/pages/task_detail_page.dart';
 import 'package:to_do_list/utils/date_formatter.dart';
@@ -49,6 +50,15 @@ class _MyHomePageState extends State<MyHomePage> {
           centerTitle: true,
           elevation: 0,
           actions: [
+            IconButton(
+              icon: const Icon(Icons.person),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ProfilePage()),
+                );
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.settings),
               onPressed: () {
