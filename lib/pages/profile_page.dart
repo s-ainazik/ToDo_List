@@ -74,7 +74,7 @@ class _ProfileContentState extends State<_ProfileContent> {
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
-                  validator: (value) => _validateNumber(value, 5, 100, 'Возраст'),
+                  validator: (value) => _validateNumber(value, 5, 125, 'Возраст'),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -84,7 +84,7 @@ class _ProfileContentState extends State<_ProfileContent> {
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
-                  validator: (value) => _validateNumber(value, 50, 250, 'Рост'),
+                  validator: (value) => _validateNumber(value, 50, 280, 'Рост'),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -94,7 +94,7 @@ class _ProfileContentState extends State<_ProfileContent> {
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
-                  validator: (value) => _validateNumber(value, 10, 500, 'Вес'),
+                  validator: (value) => _validateNumber(value, 10, 650, 'Вес'),
                 ),
                 const SizedBox(height: 32),
                 ElevatedButton(
